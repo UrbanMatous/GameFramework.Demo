@@ -13,13 +13,13 @@ class Program
         GameLogger.Log($"Game started. World size: {config.WorldWidth}x{config.WorldHeight}, Level: {config.GameLevel}");
 
         // Create characters
-        var thor = new Warrior { Name = "Thor", HitPoints = 50, X = 0, Y = 0 };
+        var aragorn = new Warrior { Name = "Aragorn", HitPoints = 50, X = 0, Y = 0 };
         var goblin = new Warrior { Name = "Goblin", HitPoints = 60, X = 2, Y = 2 };
         var goblinKing = new Warrior { Name = "Goblin King", HitPoints = 100, X = 2, Y = 2 };
 
         // Observer setup
         var hitTracker = new HitTracker();
-        thor.Attach(hitTracker);
+        aragorn.Attach(hitTracker);
         goblin.Attach(hitTracker);
         goblinKing.Attach(hitTracker);
 
@@ -32,7 +32,7 @@ class Program
         var rustedSword = new BonusDamageDecorator(rustySword, 3, "Rusted");
         GameLogger.Log("Goblin has " + rustedSword.Description);
         goblin.Attacks.Add( rustedSword );
-        var lootBox = new WorldObject("Treasure Chest")
+        var lootBox = new WorldObject("Treasure Chest",0,0)
         {
             ContainedAttackItem = fireball,
             ContainedDefenseItem = defenseItem,
@@ -40,19 +40,18 @@ class Program
         };
 
         // Thor loots the treasure chest
-        thor.Loot(lootBox);
-        lootBox.ApplyTo(thor);
+        aragorn.Loot(lootBox);
 
         // Equip basic sword
-        var swordLoot = new WorldObject("Sword of Olympus")
+        var swordLoot = new WorldObject("Sword of Olympus",0,0)
         {
             ContainedAttackItem = sword
         };
-        thor.Loot(swordLoot);
-        swordLoot.ApplyTo(thor);
+        aragorn.Loot(swordLoot);
+ 
 
         // Game loop with simple AI
-        var creatures = new List<Creature> { thor, goblin };
+        var creatures = new List<Creature> { aragorn, goblin };
 
         for (int turn = 1; goblin.IsAlive;turn++)
         {
@@ -70,19 +69,21 @@ class Program
             }
         }
 
+        Console.WriteLine($"--- Continue to Goblin King ---");
+
         // Apply boosted weapon
-        var boostedSword = new LowHealthBoostDecorator(sword, thor);
-        thor.Attacks.Clear();
-        thor.Attacks.Add(boostedSword);
-        thor.Attacks.Add(fireball);
-        thor.HitPoints = 20; // simulate low HP
+        var boostedSword = new LowHealthBoostDecorator(sword, aragorn);
+        aragorn.Attacks.Clear();
+        aragorn.Attacks.Add(boostedSword);
+        aragorn.Attacks.Add(fireball);
+        aragorn.HitPoints = 20; // simulate low HP
         GameLogger.Log("Thor is now below 25HP");
         GameLogger.Log("Low Health Boost Added!(+5 HitPoints)");
 
         // Attack using boosted weapon
         if (goblinKing.IsAlive)
         {
-            thor.Attack(goblinKing);
+            aragorn.Attack(goblinKing);
             // Do composite attacks or strategy switch
         }
 
@@ -91,20 +92,20 @@ class Program
         attackGroup.Add(new AttackItem { HitPoints = 3, Description = "Lightning Strike" });
         attackGroup.Add(new AttackItem { HitPoints = 4, Description = "Ice Blade" });
 
-        thor.Attacks.Clear();
-        thor.Attacks.Add(attackGroup);
+        aragorn.Attacks.Clear();
+        aragorn.Attacks.Add(attackGroup);
         if (goblinKing.IsAlive)
         {
-            thor.Attack(goblinKing);
+            aragorn.Attack(goblinKing);
             // Do composite attacks or strategy switch
         }
 
         // Strategy switch
-        thor.AttackStrategy = new AggressiveStrategy();
+        aragorn.AttackStrategy = new AggressiveStrategy();
         GameLogger.Log("Thor switched to Aggresive Strategy(+5 hitPoints)");
         if (goblinKing.IsAlive)
         {
-            thor.Attack(goblinKing);
+            aragorn.Attack(goblinKing);
             // Do composite attacks or strategy switch
         }
 
